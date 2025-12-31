@@ -1,0 +1,195 @@
+#!/usr/bin/env node
+/* eslint-disable no-await-in-loop */
+
+import * as cmd from 'cmd-ts';
+import dedent from 'dedent';
+import { castMutable, Result, unknownToString } from 'ts-data-forge';
+import {
+  convertToReadonlyTypeTransformer,
+  transformSourceCode,
+} from '../functions/index.mjs';
+
+const cmdDef = cmd.command({
+  name: 'convert-to-readonly-cli',
+  version: '1.0.0',
+  args: {
+    baseDir: cmd.positional({
+      type: cmd.string,
+      displayName: 'baseDir',
+      description: 'The base directory in which to perform the conversion',
+    }),
+    exclude: cmd.multioption({
+      long: 'exclude',
+      type: cmd.optional(cmd.array(cmd.string)),
+      description:
+        'Glob patterns of files to exclude from the base directory (e.g., "src/generated/**/*.mts")',
+    }),
+    silent: cmd.flag({
+      long: 'silent',
+      type: cmd.optional(cmd.boolean),
+      description: 'If true, suppresses output messages (default: false)',
+    }),
+  },
+  handler: (args) => {
+    convertToReadonlyCLI({
+      baseDir: args.baseDir,
+      exclude: args.exclude ?? [],
+      silent: args.silent ?? false,
+    }).catch((error: unknown) => {
+      console.error('An error occurred:', error);
+
+      process.exit(1);
+    });
+  },
+});
+
+type Args = Readonly<{
+  baseDir: string;
+  exclude: readonly string[];
+  silent: boolean;
+}>;
+
+const hr = '='.repeat(50);
+
+const convertToReadonlyCLI = async (
+  args: Args,
+): Promise<Result<undefined, undefined>> => {
+  const conditionalEcho = args.silent ? () => {} : echo;
+
+  // Find all files matching the glob
+  const globResult = await glob(args.baseDir, {
+    ignore: castMutable(args.exclude),
+    dot: true,
+  });
+
+  if (Result.isErr(globResult)) {
+    if (!args.silent) {
+      console.error('Error finding files matching pattern:', globResult.value);
+    }
+
+    return Result.err(undefined);
+  }
+
+  const files = globResult.value;
+
+  if (files.length === 0) {
+    conditionalEcho('No files found matching pattern:', args.baseDir);
+
+    return Result.ok(undefined);
+  }
+
+  const { errorFiles, transformedCount, unchangedCount } = await transformFiles(
+    files,
+    args.silent,
+  );
+
+  conditionalEcho(dedent`
+    ${hr}
+    Summary:
+      ✅ Transformed: ${transformedCount}
+      ⏭️ Unchanged:   ${unchangedCount}
+      ❌ Errors:      ${errorFiles.length}
+      📊 Total:       ${files.length}
+  `);
+
+  if (errorFiles.length > 0) {
+    conditionalEcho('\nFiles with errors:');
+
+    for (const fileName of errorFiles) {
+      conditionalEcho(`  - ${fileName}`);
+    }
+  }
+
+  conditionalEcho(hr);
+
+  if (errorFiles.length > 0) {
+    return Result.err(undefined);
+  }
+
+  return Result.ok(undefined);
+};
+
+const transformFiles = async (
+  filePaths: readonly string[],
+  silent: boolean,
+): Promise<
+  Readonly<{
+    transformedCount: number;
+    unchangedCount: number;
+    errorFiles: readonly string[];
+  }>
+> => {
+  let mut_transformedCount: number = 0;
+
+  let mut_unchangedCount: number = 0;
+
+  const mut_errorFiles: string[] = [];
+
+  for (const filePath of filePaths) {
+    const result = await transformOneFile(filePath, silent);
+
+    if (Result.isOk(result)) {
+      switch (result.value) {
+        case 'transformed':
+          mut_transformedCount += 1;
+
+          break;
+
+        case 'unchanged':
+          mut_unchangedCount += 1;
+
+          break;
+      }
+    } else {
+      mut_errorFiles.push(path.basename(filePath));
+    }
+  }
+
+  return {
+    transformedCount: mut_transformedCount,
+    unchangedCount: mut_unchangedCount,
+    errorFiles: mut_errorFiles,
+  };
+};
+
+const transformOneFile = async (
+  filePath: string,
+  silent: boolean,
+): Promise<Result<'unchanged' | 'transformed', string>> => {
+  const conditionalEcho = silent ? () => {} : echo;
+
+  const fileName = path.basename(filePath);
+
+  try {
+    const originalCode = await fs.readFile(filePath, 'utf8');
+
+    // Transform the code with all transformers
+    const transformedCode = transformSourceCode(originalCode, false, [
+      convertToReadonlyTypeTransformer(),
+    ]);
+
+    // Check if the code was actually changed
+    if (transformedCode === originalCode) {
+      conditionalEcho(`⏭️ ${fileName} - no changes needed`);
+
+      return Result.ok('unchanged');
+    } else {
+      // Write back the transformed code
+      await fs.writeFile(filePath, transformedCode, 'utf8');
+
+      conditionalEcho(`✅ ${fileName} - transformed`);
+
+      return Result.ok('transformed');
+    }
+  } catch (error) {
+    const errStr = unknownToString(error);
+
+    if (!silent) {
+      console.error(`❌ ${fileName} - error: ${errStr}`);
+    }
+
+    return Result.err(errStr);
+  }
+};
+
+await cmd.run(cmdDef, process.argv.slice(2));
