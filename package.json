@@ -26,6 +26,11 @@
   },
   "module": "./dist/entry-point.mjs",
   "types": "./dist/types.d.mts",
+  "bin": {
+    "convert-interface-to-type": "./dist/cmd/convert-interface-to-type.mjs",
+    "convert-to-readonly": "./dist/cmd/convert-to-readonly.mjs",
+    "replace-record-with-unknown-record": "./dist/cmd/replace-record-with-unknown-record.mjs"
+  },
   "files": [
     "src",
     "dist",
