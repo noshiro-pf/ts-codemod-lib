@@ -4,6 +4,7 @@
 import * as cmd from 'cmd-ts';
 import dedent from 'dedent';
 import { castMutable, Result, unknownToString } from 'ts-data-forge';
+import 'ts-repo-utils';
 import {
   convertToReadonlyTypeTransformer,
   transformSourceCode,
