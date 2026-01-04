@@ -22,10 +22,10 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type User = Readonly<{
+        type User = {
           name: string;
           age: number;
-        }>;
+        };
       `,
     );
   });
@@ -49,10 +49,10 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        export type User = Readonly<{
+        export type User = {
           name: string;
           age: number;
-        }>;
+        };
       `,
     );
   });
@@ -75,9 +75,9 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type Container<T> = Readonly<{
+        type Container<T> = {
           value: T;
-        }>;
+        };
       `,
     );
   });
@@ -104,13 +104,13 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type Base = Readonly<{
+        type Base = {
           id: string;
-        }>;
+        };
 
-        type User = Base & Readonly<{
+        type User = Base & {
           name: string;
-        }>;
+        };
       `,
     );
   });
@@ -141,17 +141,17 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type A = Readonly<{
+        type A = {
           a: string;
-        }>;
+        };
 
-        type B = Readonly<{
+        type B = {
           b: number;
-        }>;
+        };
 
-        type C = A & B & Readonly<{
+        type C = A & B & {
           c: boolean;
-        }>;
+        };
       `,
     );
   });
@@ -176,9 +176,9 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type Base = Readonly<{
+        type Base = {
           id: string;
-        }>;
+        };
 
         type User = Base;
       `,
@@ -201,7 +201,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type Empty = Readonly<Record<string, never>>;
+        type Empty = Record<string, never>;
       `,
     );
   });
@@ -231,9 +231,9 @@ describe(convertInterfaceToTypeTransformer, () => {
     expect(sourceFile.getText()).toBe(
       dedent`
         namespace MyNamespace {
-          export type User = Readonly<{
+          export type User = {
               name: string;
-            }>;
+            };
         }
       `,
     );
@@ -258,10 +258,10 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type User = Readonly<{
+        type User = {
           name: string;
           age?: number;
-        }>;
+        };
       `,
     );
   });
@@ -285,10 +285,10 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     expect(sourceFile.getText()).toBe(
       dedent`
-        type User = Readonly<{
+        type User = {
           readonly name: string;
           age: number;
-        }>;
+        };
       `,
     );
   });

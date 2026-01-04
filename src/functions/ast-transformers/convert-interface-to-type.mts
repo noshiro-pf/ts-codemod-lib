@@ -87,7 +87,7 @@ export const convertInterfaceToTypeTransformer =
       members: readonly tsm.TypeElementTypes[],
     ): string => {
       if (members.length === 0) {
-        return 'Readonly<Record<string, never>>';
+        return 'Record<string, never>';
       }
 
       const memberTexts = members.map((member) => {
@@ -104,7 +104,7 @@ export const convertInterfaceToTypeTransformer =
           : memberText;
       });
 
-      return `Readonly<{\n  ${memberTexts.join('\n  ')}\n}>`;
+      return `{\n  ${memberTexts.join('\n  ')}\n}`;
     };
 
     // Process top-level interface declarations
