@@ -54,7 +54,9 @@ const hr = '='.repeat(50);
 const convertToReadonlyCLI = async (
   args: Args,
 ): Promise<Result<undefined, undefined>> => {
-  const conditionalEcho = args.silent ? () => {} : echo;
+  const echoIfNotSilent = args.silent ? () => {} : echo;
+
+  const errorIfNotSilent = args.silent ? () => {} : console.error;
 
   // Find all files matching the glob
   const globResult = await glob(args.baseDir, {
@@ -63,9 +65,7 @@ const convertToReadonlyCLI = async (
   });
 
   if (Result.isErr(globResult)) {
-    if (!args.silent) {
-      console.error('Error finding files matching pattern:', globResult.value);
-    }
+    errorIfNotSilent('Error finding files matching pattern:', globResult.value);
 
     return Result.err(undefined);
   }
@@ -73,7 +73,7 @@ const convertToReadonlyCLI = async (
   const files = globResult.value;
 
   if (files.length === 0) {
-    conditionalEcho('No files found matching pattern:', args.baseDir);
+    echoIfNotSilent('No files found matching pattern:', args.baseDir);
 
     return Result.ok(undefined);
   }
@@ -83,7 +83,7 @@ const convertToReadonlyCLI = async (
     args.silent,
   );
 
-  conditionalEcho(dedent`
+  echoIfNotSilent(dedent`
     ${hr}
     Summary:
       ✅ Transformed: ${transformedCount}
@@ -93,14 +93,14 @@ const convertToReadonlyCLI = async (
   `);
 
   if (errorFiles.length > 0) {
-    conditionalEcho('\nFiles with errors:');
+    echoIfNotSilent('\nFiles with errors:');
 
     for (const fileName of errorFiles) {
-      conditionalEcho(`  - ${fileName}`);
+      echoIfNotSilent(`  - ${fileName}`);
     }
   }
 
-  conditionalEcho(hr);
+  echoIfNotSilent(hr);
 
   if (errorFiles.length > 0) {
     return Result.err(undefined);
@@ -156,7 +156,9 @@ const transformOneFile = async (
   filePath: string,
   silent: boolean,
 ): Promise<Result<'unchanged' | 'transformed', string>> => {
-  const conditionalEcho = silent ? () => {} : echo;
+  const echoIfNotSilent = silent ? () => {} : echo;
+
+  const errorIfNotSilent = silent ? () => {} : console.error;
 
   const fileName = path.basename(filePath);
 
@@ -170,23 +172,21 @@ const transformOneFile = async (
 
     // Check if the code was actually changed
     if (transformedCode === originalCode) {
-      conditionalEcho(`⏭️ ${fileName} - no changes needed`);
+      echoIfNotSilent(`⏭️ ${fileName} - no changes needed`);
 
       return Result.ok('unchanged');
     } else {
       // Write back the transformed code
       await fs.writeFile(filePath, transformedCode, 'utf8');
 
-      conditionalEcho(`✅ ${fileName} - transformed`);
+      echoIfNotSilent(`✅ ${fileName} - transformed`);
 
       return Result.ok('transformed');
     }
   } catch (error) {
     const errStr = unknownToString(error);
 
-    if (!silent) {
-      console.error(`❌ ${fileName} - error: ${errStr}`);
-    }
+    errorIfNotSilent(`❌ ${fileName} - error: ${errStr}`);
 
     return Result.err(errStr);
   }
