@@ -3,7 +3,7 @@
 
 import * as cmd from 'cmd-ts';
 import dedent from 'dedent';
-import { castMutable, Result, unknownToString } from 'ts-data-forge';
+import { castMutable, pipe, Result, unknownToString } from 'ts-data-forge';
 import 'ts-repo-utils';
 import {
   convertToReadonlyTypeTransformer,
@@ -50,8 +50,6 @@ type Args = Readonly<{
   silent: boolean;
 }>;
 
-const hr = '='.repeat(50);
-
 const convertToReadonlyCLI = async (
   args: Args,
 ): Promise<Result<undefined, undefined>> => {
@@ -62,7 +60,6 @@ const convertToReadonlyCLI = async (
   // Find all files matching the glob
   const globResult = await glob(args.baseDir, {
     ignore: castMutable(args.exclude),
-    dot: true,
   });
 
   if (Result.isErr(globResult)) {
@@ -71,7 +68,15 @@ const convertToReadonlyCLI = async (
     return Result.err(undefined);
   }
 
-  const files = globResult.value;
+  // Extract paths from the result (could be either strings or Entry objects)
+  const files: readonly string[] = pipe(globResult.value).map((rawFiles) =>
+    typeof rawFiles[0] === 'string'
+      ? (rawFiles satisfies readonly string[])
+      : // eslint-disable-next-line total-functions/no-unsafe-type-assertion
+        (rawFiles as unknown as readonly { path: string }[]).map(
+          (entry) => entry.path,
+        ),
+  ).value;
 
   if (files.length === 0) {
     echoIfNotSilent('No files found matching pattern:', args.baseDir);
@@ -83,6 +88,8 @@ const convertToReadonlyCLI = async (
     files,
     args.silent,
   );
+
+  const hr = '='.repeat(50);
 
   echoIfNotSilent(dedent`
     ${hr}
