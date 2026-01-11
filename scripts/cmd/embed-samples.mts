@@ -20,7 +20,7 @@ const documents: DeepReadonly<
   {
     mdPath: path.resolve(projectRootPath, 'README.md'),
     samplesDir: path.resolve(projectRootPath, 'samples/readme'),
-    sampleCodeFiles: [],
+    sampleCodeFiles: ['programmatic-usage.mts'],
   },
 ] as const;
 
