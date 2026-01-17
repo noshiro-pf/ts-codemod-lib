@@ -1,6 +1,10 @@
+import { pipe } from 'ts-data-forge';
+
 const ignoreAboveKeyword = '// embed-sample-code-ignore-above';
 
 const ignoreBelowKeyword = '// embed-sample-code-ignore-below';
+
+const ignoreLineKeyword = '/* embed-sample-code-ignore-this-line */';
 
 /** Extracts the relevant sample code, removing ignore markers */
 export const extractSampleCode = (content: string): string => {
@@ -12,9 +16,15 @@ export const extractSampleCode = (content: string): string => {
 
   const end = endIndex === -1 ? content.length : endIndex;
 
-  return normalizeIndent(
-    content.slice(start, end).replaceAll(/IGNORE_EMBEDDING\(.*\);\n/gu, ''),
-  ).trim();
+  return pipe(content.slice(start, end))
+    .map((s) =>
+      s
+        .split('\n')
+        .filter((line) => !line.trimStart().startsWith(ignoreLineKeyword))
+        .join('\n'),
+    )
+    .map(normalizeIndent)
+    .map((s) => s.trim()).value;
 };
 
 const normalizeIndent = (source: string): string => {

@@ -10,9 +10,9 @@ import {
   transformSourceCode,
 } from 'ts-codemod-lib';
 
-if (import.meta.vitest !== undefined) {
-  /* eslint-disable vitest/expect-expect */
-  test('transformSourceCode with glob', async () => {
+/* embed-sample-code-ignore-this-line */ if (import.meta.vitest !== undefined) {
+  /* embed-sample-code-ignore-this-line */ // eslint-disable-next-line vitest/no-disabled-tests
+  /* embed-sample-code-ignore-this-line */ test.skip('transformSourceCode with glob', async () => {
     for await (const filePath of fs.glob('test-code/**/*.{mts,tsx}')) {
       console.log(`Processing file: ${filePath}`);
 
@@ -31,5 +31,7 @@ if (import.meta.vitest !== undefined) {
 
       await fs.writeFile(filePath, transformedCode, 'utf8');
     }
+
+    // embed-sample-code-ignore-below
   });
 }
