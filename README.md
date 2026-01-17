@@ -43,7 +43,7 @@ Appends `as const` to array literals and object literals to make them readonly c
 
 Example:
 
-```typescript
+```ts
 // Before
 const arr = [1, 2, 3];
 const obj = { a: 1, b: 2 };
@@ -64,7 +64,7 @@ Options:
 
 Example:
 
-```typescript
+```ts
 // Before
 type User = {
     id: number;
@@ -92,7 +92,7 @@ Converts TypeScript interface declarations to type aliases. This transformer hel
 
 Example:
 
-```typescript
+```ts
 // Before
 interface User {
     id: number;
@@ -112,7 +112,7 @@ Replaces `any` type annotations with `unknown` for improved type safety. The `un
 
 Example:
 
-```typescript
+```ts
 // Before
 const getValue = (data: any): any => {
     return data.value;
@@ -140,7 +140,7 @@ Replaces `Record<string, unknown>` and `Readonly<Record<string, unknown>>` with 
 
 Example:
 
-```typescript
+```ts
 // Before
 type Config = Record<string, unknown>;
 type ReadonlyConfig = Readonly<Record<string, unknown>>;
@@ -163,7 +163,7 @@ Examples:
 
 **Example using `// transformer-ignore-next-line`:**
 
-```typescript
+```ts
 // Before
 type Config = {
     apiKey: string;
@@ -182,7 +182,7 @@ type Config = Readonly<{
 
 **Example using `/* transformer-ignore */`:**
 
-```typescript
+```ts
 /* transformer-ignore */
 // This entire file will not be processed by transformers.
 
@@ -252,7 +252,7 @@ npx replace-record-with-unknown-record <baseDir> [--exclude <pattern>] [--silent
 
 You can use the `astTransformerToStringTransformer` utility to apply these transformers to source code strings:
 
-```typescript
+```tsx
 import {
     appendAsConstTransformer,
     convertInterfaceToTypeTransformer,
@@ -389,7 +389,7 @@ node codemod.mjs
 
 - Types within JSDoc comments are not transformed.
 
-    ```typescript
+    ```ts
     // Before
     /**
      * Processes user data.
