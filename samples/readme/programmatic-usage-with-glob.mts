@@ -13,7 +13,7 @@ import {
 if (import.meta.vitest !== undefined) {
   /* eslint-disable vitest/expect-expect */
   test('transformSourceCode with glob', async () => {
-    for await (const filePath of fs.glob('test/**/*.{mts,tsx}')) {
+    for await (const filePath of fs.glob('test-code/**/*.{mts,tsx}')) {
       console.log(`Processing file: ${filePath}`);
 
       const originalCode = await fs.readFile(filePath, 'utf8');
