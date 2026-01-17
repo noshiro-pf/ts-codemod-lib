@@ -1,6 +1,4 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
-// embed-sample-code-ignore-above
-import * as fs from 'node:fs/promises';
+import dedent from 'dedent';
 import {
   appendAsConstTransformer,
   convertInterfaceToTypeTransformer,
@@ -10,21 +8,71 @@ import {
   transformSourceCode,
 } from 'ts-codemod-lib';
 
-for await (const filePath of fs.glob('test/**/*.{mts,tsx}')) {
-  console.log(`Processing file: ${filePath}`);
+const originalCode = dedent`
+  export interface A {
+    name?: string;
+    point: [x: number, y: number, z?: number];
+    meta: {
+      description?: string;
+      tags: string[];
+      attributes: Record<string, unknown>;
+      data?: any;
+    };
+  }
 
-  const originalCode = await fs.readFile(filePath, 'utf8');
+  export const obj = {
+    point: [1, 2],
+    meta: {
+      tags: ['example', 'test'],
+      attributes: {
+        key1: 'value1',
+        key2: 42,
+      },
+    },
+  } satisfies A;
 
-  const isTsx = filePath.endsWith('.tsx') || filePath.endsWith('.jsx');
+  export const arr = ['a', {}, 0];
+`;
 
-  // Apply transformations to source code
-  const transformedCode = transformSourceCode(originalCode, isTsx, [
-    convertInterfaceToTypeTransformer(),
-    replaceRecordWithUnknownRecordTransformer(),
-    convertToReadonlyTypeTransformer(),
-    appendAsConstTransformer(),
-    replaceAnyWithUnknownTransformer(),
-  ]);
+const isTsx = false;
 
-  await fs.writeFile(filePath, transformedCode, 'utf8');
+// Apply transformations to source code
+const transformedCode = transformSourceCode(originalCode, isTsx, [
+  convertInterfaceToTypeTransformer(),
+  replaceRecordWithUnknownRecordTransformer(),
+  convertToReadonlyTypeTransformer(),
+  appendAsConstTransformer(),
+  replaceAnyWithUnknownTransformer(),
+]);
+
+const expected = dedent`
+  export type A = Readonly< {
+    name?: string;
+    point: (readonly  [x: number, y: number, z?: number]);
+    meta: Readonly< {
+        description?: string;
+        tags: (readonly  string[]);
+        attributes: UnknownRecord;
+        data?: unknown;
+      }>;
+  }>;
+
+  export const obj = {
+    point: [1, 2],
+    meta: {
+      tags: ['example', 'test'],
+      attributes: {
+        key1: 'value1',
+        key2: 42,
+      },
+    },
+  } as const satisfies A;
+
+  export const arr = ['a', {}, 0] as const;
+`;
+
+if (import.meta.vitest !== undefined) {
+  test('transformSourceCode', () => {
+    assert.isTrue(transformedCode === expected);
+  });
 }
