@@ -3,7 +3,7 @@ import { formatFiles } from 'ts-repo-utils';
 import { projectRootPath } from '../project-root-path.mjs';
 import { extractSampleCode } from './embed-samples-utils.mjs';
 
-const codeBlockStart = '```tsx';
+const codeBlockPatterns = ['```tsx', '```mts', '```js'] as const;
 
 const codeBlockEnd = '```';
 
@@ -17,7 +17,10 @@ const documents: DeepReadonly<
   {
     mdPath: path.resolve(projectRootPath, 'README.md'),
     samplesDir: path.resolve(projectRootPath, 'samples/readme'),
-    sampleCodeFiles: ['programmatic-usage.mts'],
+    sampleCodeFiles: [
+      'programmatic-usage.mts',
+      'apply-transformers-to-src-directory.mts',
+    ],
   },
 ] as const;
 
@@ -38,9 +41,25 @@ export const embedSamples = async (): Promise<Result<undefined, unknown>> => {
 
         const sampleContentSliced = extractSampleCode(sampleContent);
 
-        const codeBlockStartIndex = mut_rest.indexOf(codeBlockStart);
+        // Find the next code block that matches one of our patterns
+        let mut_codeBlockStartIndex = -1;
 
-        if (codeBlockStartIndex === -1) {
+        let mut_codeBlockStart = '';
+
+        for (const pattern of codeBlockPatterns) {
+          const index = mut_rest.indexOf(pattern);
+
+          if (
+            index !== -1 &&
+            (mut_codeBlockStartIndex === -1 || index < mut_codeBlockStartIndex)
+          ) {
+            mut_codeBlockStartIndex = index;
+
+            mut_codeBlockStart = pattern;
+          }
+        }
+
+        if (mut_codeBlockStartIndex === -1) {
           return Result.err(
             `❌ codeBlockStart not found for ${sampleCodeFile}`,
           );
@@ -48,7 +67,7 @@ export const embedSamples = async (): Promise<Result<undefined, unknown>> => {
 
         const codeBlockEndIndex = mut_rest.indexOf(
           codeBlockEnd,
-          codeBlockStartIndex + codeBlockStart.length,
+          mut_codeBlockStartIndex + mut_codeBlockStart.length,
         );
 
         if (codeBlockEndIndex === -1) {
@@ -58,7 +77,7 @@ export const embedSamples = async (): Promise<Result<undefined, unknown>> => {
         // Replace the code block content
         const beforeBlock = mut_rest.slice(
           0,
-          Math.max(0, codeBlockStartIndex + codeBlockStart.length),
+          Math.max(0, mut_codeBlockStartIndex + mut_codeBlockStart.length),
         );
 
         const afterBlock = mut_rest.slice(Math.max(0, codeBlockEndIndex));

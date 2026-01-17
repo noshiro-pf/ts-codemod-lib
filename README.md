@@ -252,7 +252,7 @@ npx replace-record-with-unknown-record <baseDir> [--exclude <pattern>] [--silent
 
 You can use the `astTransformerToStringTransformer` utility to apply these transformers to source code strings:
 
-```tsx
+```mts
 import dedent from 'dedent';
 import {
     appendAsConstTransformer,
@@ -342,9 +342,7 @@ This is more efficient as it avoids the overhead of parsing and printing before 
 npm install -D glob prettier
 ```
 
-```js
-// codemod.mjs
-
+```mts
 import { glob } from 'glob';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';

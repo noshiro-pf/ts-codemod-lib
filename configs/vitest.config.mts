@@ -78,6 +78,7 @@ const projectConfig = (
     exclude: [
       '**/*.d.mts',
       '**/index.mts',
+      'samples/readme/apply-transformers-to-src-directory.mts',
       ...(options?.additionalExcludes ?? []),
     ],
   }) as const satisfies ProjectConfig;
