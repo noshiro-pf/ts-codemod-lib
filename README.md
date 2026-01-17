@@ -13,12 +13,12 @@ A TypeScript library for code transformations using AST (Abstract Syntax Tree) t
 
 ## Features
 
--   **AST-based Transformations**: Leverage TypeScript Compiler API for reliable type-aware code transformations
--   **Ready-to-use Transformers**: Append `as const`, convert to readonly types, replace `any` with `unknown`, and more
--   **Ready-to-use CLI Tools**: Convert interfaces to types, add readonly modifiers, and more
--   **Extensible API**: Build custom transformers using the provided utilities
--   **Type-safe**: Written in TypeScript with strict type checking
--   **Selective Transformation**: Support for ignoring specific lines or entire files via comments
+- **AST-based Transformations**: Leverage TypeScript Compiler API for reliable type-aware code transformations
+- **Ready-to-use Transformers**: Append `as const`, convert to readonly types, replace `any` with `unknown`, and more
+- **Ready-to-use CLI Tools**: Convert interfaces to types, add readonly modifiers, and more
+- **Extensible API**: Build custom transformers using the provided utilities
+- **Type-safe**: Written in TypeScript with strict type checking
+- **Selective Transformation**: Support for ignoring specific lines or entire files via comments
 
 ## Installation
 
@@ -59,8 +59,8 @@ Converts TypeScript type definitions to readonly types. This transformer helps i
 
 Options:
 
--   `ignorePrefixes`: Array of string prefixes for identifiers that should not be made readonly
--   `DeepReadonlyTypeName`: Custom name for the DeepReadonly type utility (defaults to "DeepReadonly")
+- `ignorePrefixes`: Array of string prefixes for identifiers that should not be made readonly
+- `DeepReadonlyTypeName`: Custom name for the DeepReadonly type utility (defaults to "DeepReadonly")
 
 Example:
 
@@ -84,9 +84,29 @@ type User = Readonly<{
 }>;
 ```
 
-For more detailed transformation examples, see the [test file](./src/ast-transformers/convert-to-readonly-type.test.mts) which covers various scenarios including complex types, nested structures, and DeepReadonly transformations.
+For more detailed transformation examples, see the [test file](./src/functions/ast-transformers/convert-to-readonly-type.test.mts) which covers various scenarios including complex types, nested structures, and DeepReadonly transformations.
 
-### 3. `replaceAnyWithUnknownTransformer`
+### 3. `convertInterfaceToTypeTransformer`
+
+Converts TypeScript interface declarations to type aliases. This transformer helps in maintaining consistency by using type aliases throughout the codebase.
+
+Example:
+
+```typescript
+// Before
+interface User {
+    id: number;
+    name: string;
+}
+
+// After
+type User = {
+    id: number;
+    name: string;
+};
+```
+
+### 4. `replaceAnyWithUnknownTransformer`
 
 Replaces `any` type annotations with `unknown` for improved type safety. The `unknown` type requires type checking before operations, making your code more robust. For function parameters with rest arguments, `(...args: any) => R` is converted to `(...args: readonly unknown[]) => R`.
 
@@ -112,12 +132,32 @@ const sortValues = (...args: readonly unknown[]): unknown => {
 };
 ```
 
-For more detailed transformation examples, see the [test file](./src/ast-transformers/replace-any-with-unknown.test.mts) which covers various scenarios including function parameters, return types, and variable declarations.
+For more detailed transformation examples, see the [test file](./src/functions/ast-transformers/replace-any-with-unknown.test.mts) which covers various scenarios including function parameters, return types, and variable declarations.
+
+### 5. `replaceRecordWithUnknownRecordTransformer`
+
+Replaces `Record<string, unknown>` and `Readonly<Record<string, unknown>>` with `UnknownRecord` for better type safety and consistency. This transformer also handles index signatures `[k: string]: unknown` in interfaces and type literals.
+
+Example:
+
+```typescript
+// Before
+type Config = Record<string, unknown>;
+type ReadonlyConfig = Readonly<Record<string, unknown>>;
+type Data = {
+    [key: string]: unknown;
+};
+
+// After
+type Config = UnknownRecord;
+type ReadonlyConfig = UnknownRecord;
+type Data = UnknownRecord;
+```
 
 ### Disabling Transformers
 
--   Nodes on the line immediately following a `// transformer-ignore-next-line` comment will be skipped.
--   Files containing a `/* transformer-ignore */` comment will be skipped entirely.
+- Nodes on the line immediately following a `// transformer-ignore-next-line` comment will be skipped.
+- Files containing a `/* transformer-ignore */` comment will be skipped entirely.
 
 Examples:
 
@@ -158,7 +198,23 @@ const items = [1, 2, 3];
 
 ## CLI Tools
 
-This package provides several command-line tools for common TypeScript transformations:
+This package provides command-line tools for common TypeScript transformations:
+
+### append-as-const
+
+Appends `as const` to array literals and object literals to make them readonly constants.
+
+```bash
+npx append-as-const <baseDir> [--exclude <pattern>] [--silent]
+```
+
+### convert-interface-to-type
+
+Converts TypeScript interface declarations to type aliases.
+
+```bash
+npx convert-interface-to-type <baseDir> [--exclude <pattern>] [--silent]
+```
 
 ### convert-to-readonly
 
@@ -168,18 +224,12 @@ Adds `readonly` modifiers to type definitions throughout your codebase.
 npx convert-to-readonly <baseDir> [--exclude <pattern>] [--silent]
 ```
 
-**Options:**
+### replace-any-with-unknown
 
--   `baseDir`: Base directory to scan for TypeScript files
--   `--exclude`: Glob patterns to exclude (e.g., `"src/generated/**/*.mts"`)
--   `--silent`: Suppress output messages
-
-### convert-interface-to-type
-
-Converts TypeScript interface declarations to type aliases.
+Replaces `any` type annotations with `unknown` for improved type safety.
 
 ```bash
-npx convert-interface-to-type <baseDir> [--exclude <pattern>] [--silent]
+npx replace-any-with-unknown <baseDir> [--exclude <pattern>] [--silent]
 ```
 
 ### replace-record-with-unknown-record
@@ -190,6 +240,12 @@ Replaces `Record<string, unknown>` with `UnknownRecord` for better type safety.
 npx replace-record-with-unknown-record <baseDir> [--exclude <pattern>] [--silent]
 ```
 
+**Common Options:**
+
+- `baseDir`: Base directory to scan for TypeScript files
+- `--exclude`: Glob patterns to exclude (e.g., `"src/generated/**/*.mts"`)
+- `--silent`: Suppress output messages
+
 ## Programmatic Usage
 
 ### Using Transformers with String Input/Output
@@ -198,21 +254,24 @@ You can use the `astTransformerToStringTransformer` utility to apply these trans
 
 ```typescript
 import {
-    astTransformerToStringTransformer,
     appendAsConstTransformer,
+    convertInterfaceToTypeTransformer,
     convertToReadonlyTypeTransformer,
     replaceAnyWithUnknownTransformer,
+    replaceRecordWithUnknownRecordTransformer,
+    transformSourceCode,
 } from 'ts-codemod-lib';
 
 // Source code to transform
 const sourceCode = `
-type User = {
+interface User {
     id: number;
     description: string;
     preferences: Map<string, string>;
     friendIds: number[];
+    settings: Record<string, unknown>;
     mut_items: string[];
-};
+}
 
 const defaultUser = {
     id: 1,
@@ -222,16 +281,14 @@ const defaultUser = {
 };
 `;
 
-// Create a string transformer by combining multiple AST transformers
-// It's recommended to apply all transformers at once for better performance
-const stringTransformer = astTransformerToStringTransformer([
-    replaceAnyWithUnknownTransformer,
-    appendAsConstTransformer,
+// Apply transformations to source code
+const transformedCode = transformSourceCode(sourceCode, false, [
+    convertInterfaceToTypeTransformer(),
+    replaceRecordWithUnknownRecordTransformer(),
     convertToReadonlyTypeTransformer(),
+    appendAsConstTransformer(),
+    replaceAnyWithUnknownTransformer(),
 ]);
-
-// Apply the transformation
-const transformedCode = stringTransformer(sourceCode);
 
 console.log(transformedCode);
 // Output:
@@ -240,6 +297,7 @@ console.log(transformedCode);
 //     description: string;
 //     preferences: ReadonlyMap<string, string>;
 //     friendIds: readonly number[];
+//     settings: UnknownRecord;
 //     mut_items: string[];
 // }>;
 
@@ -251,7 +309,7 @@ console.log(transformedCode);
 // } as const;
 ```
 
-Note: It is recommended to apply all transformers at once using `astTransformerToStringTransformer` rather than applying each transformer individually using `astTransformerToStringTransformer`.
+Note: It is recommended to apply all transformers at once using `transformSourceCode` rather than applying each transformer individually.
 This is more efficient as it avoids the overhead of parsing and printing before and after applying each AST transformation.
 
 ### Apply Transformers to `src` Directory
@@ -269,8 +327,10 @@ import path from 'node:path';
 import * as prettier from 'prettier';
 import {
     appendAsConstTransformer,
+    convertInterfaceToTypeTransformer,
     convertToReadonlyTypeTransformer,
     replaceAnyWithUnknownTransformer,
+    replaceRecordWithUnknownRecordTransformer,
     transformSourceCode,
 } from 'ts-codemod-lib';
 
@@ -295,20 +355,15 @@ await Promise.all(
 
         const options = await prettier.resolveConfig(filePath);
 
-        const contentTransformed = transformSourceCode(
-            content,
-            [
-                replaceAnyWithUnknownTransformer,
-                appendAsConstTransformer(),
-                convertToReadonlyTypeTransformer(),
-            ],
-            {
-                ext: path.extname(filePath),
-                tsconfig: {
-                    searchPath: path.dirname(filePath),
-                },
-            },
-        );
+        const isTsx = filePath.endsWith('.tsx') || filePath.endsWith('.jsx');
+
+        const contentTransformed = transformSourceCode(content, isTsx, [
+            convertInterfaceToTypeTransformer(),
+            replaceRecordWithUnknownRecordTransformer(),
+            convertToReadonlyTypeTransformer(),
+            appendAsConstTransformer(),
+            replaceAnyWithUnknownTransformer(),
+        ]);
 
         const contentFormatted = await prettier.format(contentTransformed, {
             ...options,
@@ -332,7 +387,7 @@ node codemod.mjs
 
 ## Notes
 
--   Types within JSDoc comments are not transformed.
+- Types within JSDoc comments are not transformed.
 
     ```typescript
     // Before
@@ -364,15 +419,15 @@ node codemod.mjs
     }
     ```
 
--   Comment positions might change due to the heuristics used for restoring comments in the code.
-    -   When parsing source code into an AST using the TypeScript Compiler API, comments are often attached to the preceding or succeeding node. However, sometimes comments become detached (orphaned). These detached comments might be omitted when the source code string is generated by TypeScript's printer (though some might be restored). `ts-codemod-lib` includes preprocessing to identify all detached comments that the printer cannot restore and reattaches them to the immediately preceding or succeeding node, making them printable. However, the determination of whether to attach the comment before or after the node is heuristic, so the comment might move to a different position than in the original code.
-    -   Possible workarounds include experimenting to find comment positions less likely to become orphaned (comments clearly preceding a node are less likely to be orphaned) or excluding the relevant section from transformation using the `// transformer-ignore-next-line` comment.
-    -   I intend to resolve practical issues as much as possible, so please submit an issue if you find any problems.
-    -   Related link: https://github.com/microsoft/TypeScript/issues/20506#issuecomment-349740820
+- Comment positions might change due to the heuristics used for restoring comments in the code.
+    - When parsing source code into an AST using the TypeScript Compiler API, comments are often attached to the preceding or succeeding node. However, sometimes comments become detached (orphaned). These detached comments might be omitted when the source code string is generated by TypeScript's printer (though some might be restored). `ts-codemod-lib` includes preprocessing to identify all detached comments that the printer cannot restore and reattaches them to the immediately preceding or succeeding node, making them printable. However, the determination of whether to attach the comment before or after the node is heuristic, so the comment might move to a different position than in the original code.
+    - Possible workarounds include experimenting to find comment positions less likely to become orphaned (comments clearly preceding a node are less likely to be orphaned) or excluding the relevant section from transformation using the `// transformer-ignore-next-line` comment.
+    - I intend to resolve practical issues as much as possible, so please submit an issue if you find any problems.
+    - Related link: <https://github.com/microsoft/TypeScript/issues/20506#issuecomment-349740820>
 
 ## Documentation
 
--   API reference: <https://noshiro-pf.github.io/ts-codemod-lib/>
+- API reference: <https://noshiro-pf.github.io/ts-codemod-lib/>
 
 ## For Developers
 
@@ -397,7 +452,7 @@ git commit -m "Update AGENTS.md"
 
 ### Resources
 
--   https://ts-ast-viewer.com/#
--   https://github.com/itsdouges/typescript-transformer-handbook
--   https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API
--   https://blog.nnn.dev/entry/2022/03/10/110000
+- <https://ts-ast-viewer.com/#>
+- <https://github.com/itsdouges/typescript-transformer-handbook>
+- <https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API>
+- <https://blog.nnn.dev/entry/2022/03/10/110000>

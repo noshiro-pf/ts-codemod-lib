@@ -27,8 +27,10 @@
   "module": "./dist/entry-point.mjs",
   "types": "./dist/types.d.mts",
   "bin": {
+    "append-as-const": "./dist/cmd/append-as-const.mjs",
     "convert-interface-to-type": "./dist/cmd/convert-interface-to-type.mjs",
     "convert-to-readonly": "./dist/cmd/convert-to-readonly.mjs",
+    "replace-any-with-unknown": "./dist/cmd/replace-any-with-unknown.mjs",
     "replace-record-with-unknown-record": "./dist/cmd/replace-record-with-unknown-record.mjs"
   },
   "files": [
