@@ -6,9 +6,9 @@ import {
 } from '../functions/index.mjs';
 import { type TsMorphTransformer } from './types.mjs';
 
-export const replaceAnyWithUnknownTransformer: TsMorphTransformer = (
-  sourceAst,
-) => {
+export const replaceAnyWithUnknownTransformer = (): TsMorphTransformer => body;
+
+const body: TsMorphTransformer = (sourceAst) => {
   for (const node of sourceAst.getChildren()) {
     transformNode(node);
   }

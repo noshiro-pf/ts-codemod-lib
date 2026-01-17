@@ -2,8 +2,10 @@
 // embed-sample-code-ignore-above
 import * as fs from 'node:fs/promises';
 import {
+  appendAsConstTransformer,
   convertInterfaceToTypeTransformer,
   convertToReadonlyTypeTransformer,
+  replaceAnyWithUnknownTransformer,
   replaceRecordWithUnknownRecordTransformer,
   transformSourceCode,
 } from 'ts-codemod-lib';
@@ -20,6 +22,8 @@ for await (const filePath of fs.glob('test/**/*.{mts,tsx}')) {
     convertInterfaceToTypeTransformer(),
     replaceRecordWithUnknownRecordTransformer(),
     convertToReadonlyTypeTransformer(),
+    appendAsConstTransformer(),
+    replaceAnyWithUnknownTransformer(),
   ]);
 
   await fs.writeFile(filePath, transformedCode, 'utf8');
