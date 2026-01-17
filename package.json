@@ -65,7 +65,7 @@
     "lint:fix": "eslint . --fix",
     "md": "markdownlint-cli2",
     "run:cmd": "tsx ./src/cmd/convert-to-readonly.mts ./test/sample1.mts",
-    "run:test": "tsx ./samples/readme/programmatic-usage.mts",
+    "run:test": "tsx ./samples/readme/programmatic-usage-with-glob.mts",
     "test": "pnpm run z:vitest:node run",
     "test:browser": "pnpm run z:vitest --project='Browser' run",
     "test:cov": "pnpm run z:vitest:node run --coverage",

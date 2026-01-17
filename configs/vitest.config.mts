@@ -74,7 +74,7 @@ const projectConfig = (
     restoreMocks: true,
     hideSkippedTests: true,
     includeSource: ['src/functions/**/*.mts', 'samples/**/*.mts'],
-    include: ['src/functions/**/*.test.mts'],
+    include: ['src/functions/**/*.test.mts', 'samples/**/*.mts'],
     exclude: [
       '**/*.d.mts',
       '**/index.mts',

@@ -4,17 +4,20 @@ export interface A {
   meta: {
     description?: string;
     tags: string[];
-    data: Record<string, unknown>;
+    attributes: Record<string, unknown>;
+    data?: any;
   };
 }
 
-export const sampleA = {
+export const obj = {
   point: [1, 2],
   meta: {
     tags: ['example', 'test'],
-    data: {
+    attributes: {
       key1: 'value1',
       key2: 42,
     },
   },
 } satisfies A;
+
+export const arr = ['a', {}, 0];

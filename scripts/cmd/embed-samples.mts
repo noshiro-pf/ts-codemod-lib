@@ -1,14 +1,11 @@
-import { pipe, unknownToString } from 'ts-data-forge';
+import { unknownToString } from 'ts-data-forge';
 import { formatFiles } from 'ts-repo-utils';
 import { projectRootPath } from '../project-root-path.mjs';
+import { extractSampleCode } from './embed-samples-utils.mjs';
 
 const codeBlockStart = '```tsx';
 
 const codeBlockEnd = '```';
-
-const ignoreAboveKeyword = '// embed-sample-code-ignore-above';
-
-const ignoreBelowKeyword = '// embed-sample-code-ignore-below';
 
 const documents: DeepReadonly<
   {
@@ -39,15 +36,7 @@ export const embedSamples = async (): Promise<Result<undefined, unknown>> => {
 
         const sampleContent = await fs.readFile(samplePath, 'utf8');
 
-        const sampleContentSliced = sampleContent
-          .slice(
-            pipe(sampleContent.indexOf(ignoreAboveKeyword)).map((i) =>
-              i === -1 ? 0 : i + ignoreAboveKeyword.length,
-            ).value,
-            sampleContent.indexOf(ignoreBelowKeyword),
-          )
-          .replaceAll(/IGNORE_EMBEDDING\(.*\);\n/gu, '')
-          .trim();
+        const sampleContentSliced = extractSampleCode(sampleContent);
 
         const codeBlockStartIndex = mut_rest.indexOf(codeBlockStart);
 
