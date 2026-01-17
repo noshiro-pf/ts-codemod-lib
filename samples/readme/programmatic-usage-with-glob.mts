@@ -10,21 +10,26 @@ import {
   transformSourceCode,
 } from 'ts-codemod-lib';
 
-for await (const filePath of fs.glob('test/**/*.{mts,tsx}')) {
-  console.log(`Processing file: ${filePath}`);
+if (import.meta.vitest !== undefined) {
+  /* eslint-disable vitest/expect-expect */
+  test('transformSourceCode with glob', async () => {
+    for await (const filePath of fs.glob('test/**/*.{mts,tsx}')) {
+      console.log(`Processing file: ${filePath}`);
 
-  const originalCode = await fs.readFile(filePath, 'utf8');
+      const originalCode = await fs.readFile(filePath, 'utf8');
 
-  const isTsx = filePath.endsWith('.tsx') || filePath.endsWith('.jsx');
+      const isTsx = filePath.endsWith('.tsx') || filePath.endsWith('.jsx');
 
-  // Apply transformations to source code
-  const transformedCode = transformSourceCode(originalCode, isTsx, [
-    convertInterfaceToTypeTransformer(),
-    replaceRecordWithUnknownRecordTransformer(),
-    convertToReadonlyTypeTransformer(),
-    appendAsConstTransformer(),
-    replaceAnyWithUnknownTransformer(),
-  ]);
+      // Apply transformations to source code
+      const transformedCode = transformSourceCode(originalCode, isTsx, [
+        convertInterfaceToTypeTransformer(),
+        replaceRecordWithUnknownRecordTransformer(),
+        convertToReadonlyTypeTransformer(),
+        appendAsConstTransformer(),
+        replaceAnyWithUnknownTransformer(),
+      ]);
 
-  await fs.writeFile(filePath, transformedCode, 'utf8');
+      await fs.writeFile(filePath, transformedCode, 'utf8');
+    }
+  });
 }

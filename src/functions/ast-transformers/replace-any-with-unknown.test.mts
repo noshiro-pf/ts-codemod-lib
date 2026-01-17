@@ -22,7 +22,7 @@ const testFn = async ({
   }
 
   const transformed = await formatter(
-    transformSourceCode(source, false, [replaceAnyWithUnknownTransformer]),
+    transformSourceCode(source, false, [replaceAnyWithUnknownTransformer()]),
   );
 
   const expectedFormatted = await formatter(expected);
