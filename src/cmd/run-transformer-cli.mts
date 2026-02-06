@@ -113,6 +113,10 @@ const getFilesForTransformation = async (
       return uncommittedFiles;
     }
 
+    console.log('uncommittedFiles', uncommittedFiles.value);
+
+    console.log('filesFromGlob', filesFromGlob.value);
+
     return Result.map(filesFromGlob, (files) =>
       Arr.setIntersection(files, uncommittedFiles.value),
     );
