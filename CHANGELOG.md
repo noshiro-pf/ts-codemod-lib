@@ -1,3 +1,9 @@
+# [1.4.0-alpha.2](https://github.com/noshiro-pf/ts-codemod-lib/compare/v1.4.0-alpha.1...v1.4.0-alpha.2) (2026-02-06)
+
+### Bug Fixes
+
+- add debug print ([fab94e2](https://github.com/noshiro-pf/ts-codemod-lib/commit/fab94e2fbe88050d810fa13b9fbc8e8bd69e4854))
+
 # [1.4.0-alpha.1](https://github.com/noshiro-pf/ts-codemod-lib/compare/v1.3.1...v1.4.0-alpha.1) (2026-02-06)
 
 ### Features

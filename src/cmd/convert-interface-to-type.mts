@@ -8,7 +8,7 @@ import { runTransformerCLI } from './run-transformer-cli.mjs';
 
 const cmdDef = cmd.command({
   name: 'convert-interface-to-type',
-  version: '1.4.0-alpha.1',
+  version: '1.4.0-alpha.2',
   args: {
     baseDir: cmd.positional({
       type: cmd.string,
