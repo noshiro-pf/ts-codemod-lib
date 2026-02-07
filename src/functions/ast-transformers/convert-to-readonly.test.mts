@@ -5,9 +5,9 @@ import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as prettierPluginTypeScript from 'prettier/plugins/typescript';
 import * as prettier from 'prettier/standalone';
 import {
-  convertToReadonlyTypeTransformer,
+  convertToReadonlyTransformer,
   type ReadonlyTransformerOptions,
-} from './convert-to-readonly-type.mjs';
+} from './convert-to-readonly.mjs';
 import { transformSourceCode } from './transform-source-code.mjs';
 
 const testFn = async ({
@@ -35,9 +35,7 @@ const testFn = async ({
   }
 
   const transformedCodeRaw = await formatter(
-    transformSourceCode(source, isTsx, [
-      convertToReadonlyTypeTransformer(options),
-    ]),
+    transformSourceCode(source, isTsx, [convertToReadonlyTransformer(options)]),
   );
 
   const expectedFormatted = await formatter(expected);
@@ -87,7 +85,7 @@ const formatter = async (code: string): Promise<string> => {
   });
 };
 
-describe(convertToReadonlyTypeTransformer, () => {
+describe(convertToReadonlyTransformer, () => {
   describe('TypeReferences', () => {
     describe('Sets', () => {
       test.each([
@@ -3615,7 +3613,7 @@ describe(convertToReadonlyTypeTransformer, () => {
         `;
 
         transformSourceCode(source, false, [
-          convertToReadonlyTypeTransformer({
+          convertToReadonlyTransformer({
             DeepReadonly: {
               typeName: 'Readonly',
             },
@@ -3638,9 +3636,7 @@ describe(convertToReadonlyTypeTransformer, () => {
           type T = Array<number, string>;
         `; // Invalid Array usage
 
-        transformSourceCode(source, false, [
-          convertToReadonlyTypeTransformer(),
-        ]);
+        transformSourceCode(source, false, [convertToReadonlyTransformer()]);
       }).toThrowError('Unexpected number of type arguments');
     });
   });

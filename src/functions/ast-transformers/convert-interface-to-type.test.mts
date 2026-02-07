@@ -18,7 +18,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -45,7 +45,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -71,7 +71,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -100,7 +100,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -137,7 +137,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -172,7 +172,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -197,7 +197,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -226,7 +226,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -254,7 +254,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
@@ -281,7 +281,7 @@ describe(convertInterfaceToTypeTransformer, () => {
 
     const transformer = convertInterfaceToTypeTransformer();
 
-    transformer(sourceFile);
+    transformer.transform(sourceFile);
 
     expect(sourceFile.getText()).toBe(
       dedent`
