@@ -50,7 +50,6 @@ const shouldSkipFile = (
 export const transformSourceCode = (
   code: string,
   isTsx: boolean,
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   transformers: readonly TsMorphTransformer[],
   debug: boolean = false,
 ): string => {

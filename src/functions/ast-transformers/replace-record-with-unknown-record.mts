@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types -- ts-morph uses mutable types */
 import { Arr, castMutable } from 'ts-data-forge';
 import * as tsm from 'ts-morph';
+import { hasDisableNextLineComment } from '../functions/index.mjs';
 import { type TsMorphTransformer } from './types.mjs';
+
+const TRANSFORMER_NAME = 'replace-record-with-unknown-record';
 
 /**
  * Replaces `Readonly<Record<string, unknown>>`, `Record<string, unknown>`,
@@ -17,6 +20,10 @@ export const replaceRecordWithUnknownRecordTransformer =
         const typeAliases = container.getTypeAliases();
 
         for (const typeAlias of typeAliases) {
+          if (hasDisableNextLineComment(typeAlias, TRANSFORMER_NAME)) {
+            continue;
+          }
+
           const typeNode = typeAlias.getTypeNode();
 
           if (typeNode === undefined) continue;
@@ -27,6 +34,10 @@ export const replaceRecordWithUnknownRecordTransformer =
         const interfaces = container.getInterfaces();
 
         for (const interfaceDecl of interfaces) {
+          if (hasDisableNextLineComment(interfaceDecl, TRANSFORMER_NAME)) {
+            continue;
+          }
+
           // Check if interface has index signature [k: string]: unknown
           const indexSignatures = interfaceDecl.getIndexSignatures();
 
@@ -240,8 +251,7 @@ export const replaceRecordWithUnknownRecordTransformer =
     };
 
     // eslint-disable-next-line functional/immutable-data
-    castMutable(transformer).transformerName =
-      'replace-record-with-unknown-record';
+    castMutable(transformer).transformerName = TRANSFORMER_NAME;
 
     return transformer;
   };

@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types -- ts-morph uses mutable types */
 import { Arr, castMutable } from 'ts-data-forge';
 import type * as tsm from 'ts-morph';
+import { hasDisableNextLineComment } from '../functions/index.mjs';
 import { type TsMorphTransformer } from './types.mjs';
+
+const TRANSFORMER_NAME = 'convert-interface-to-type';
 
 /**
  * interface による型定義を type による型定義に変換する。
@@ -16,6 +19,10 @@ export const convertInterfaceToTypeTransformer = (): TsMorphTransformer => {
       const interfaces = container.getInterfaces();
 
       for (const interfaceDecl of interfaces) {
+        if (hasDisableNextLineComment(interfaceDecl, TRANSFORMER_NAME)) {
+          continue;
+        }
+
         convertInterfaceToType(interfaceDecl);
       }
     };
@@ -119,7 +126,7 @@ export const convertInterfaceToTypeTransformer = (): TsMorphTransformer => {
   };
 
   // eslint-disable-next-line functional/immutable-data
-  castMutable(transformer).transformerName = 'convert-interface-to-type';
+  castMutable(transformer).transformerName = TRANSFORMER_NAME;
 
   return transformer;
 };
