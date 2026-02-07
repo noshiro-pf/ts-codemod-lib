@@ -406,14 +406,14 @@ describe(appendAsConstTransformer, () => {
   describe('Function contexts', () => {
     test.each([
       {
-        name: 'function return statement',
+        name: 'function return statement (not transformed - out of scope)',
         source: 'function foo() { return [1, 2, 3]; }',
-        expected: 'function foo() { return [1, 2, 3] as const; }',
+        expected: 'function foo() { return [1, 2, 3]; }',
       },
       {
         name: 'arrow function return',
         source: 'const foo = () => ({ a: 1, b: 2 });',
-        expected: 'const foo = () => ({ a: 1, b: 2 } as const);',
+        expected: 'const foo = () => ({ a: 1, b: 2 }) as const;',
       },
       {
         name: 'array already has as const',
@@ -426,14 +426,14 @@ describe(appendAsConstTransformer, () => {
         expected: 'const obj = { a: 1 } as const;',
       },
       {
-        name: 'array in function parameter default value',
+        name: 'array in function parameter default value (not transformed - out of scope)',
         source: 'function foo(a = [1, 2]) { return a; }',
-        expected: 'function foo(a = [1, 2] as const) { return a; }',
+        expected: 'function foo(a = [1, 2]) { return a; }',
       },
       {
-        name: 'object in function parameter default value',
+        name: 'object in function parameter default value (not transformed - out of scope)',
         source: 'function foo(a = { b: 1 }) { return a; }',
-        expected: 'function foo(a = { b: 1 } as const) { return a; }',
+        expected: 'function foo(a = { b: 1 }) { return a; }',
       },
       {
         name: 'object in function call argument (not transformed with avoidInFunctionArgs)',
@@ -623,9 +623,9 @@ describe(appendAsConstTransformer, () => {
         expected: 'const date = new Date();',
       },
       {
-        name: 'class declaration',
+        name: 'class declaration (not transformed - out of scope)',
         source: 'class MyClass { prop = 1; }',
-        expected: 'class MyClass { prop = 1 as const; }',
+        expected: 'class MyClass { prop = 1; }',
       },
       {
         name: 'class declaration with mut_ prefix',
