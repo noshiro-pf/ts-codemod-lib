@@ -1,6 +1,6 @@
 import type * as tsm from 'ts-morph';
 
-export type TsMorphTransformer = {
+export type TsMorphTransformer = Readonly<{
   // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   (sourceFile: tsm.SourceFile): void;
 
@@ -10,4 +10,4 @@ export type TsMorphTransformer = {
    * Example: 'append-as-const', 'replace-any-with-unknown'
    */
   transformerName?: string;
-};
+}>;
