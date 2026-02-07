@@ -1,5 +1,6 @@
 import {
   Arr,
+  castMutable,
   expectType,
   ISet,
   isString,
@@ -29,9 +30,9 @@ import {
 } from './readonly-transformer-helpers/index.mjs';
 import { type TsMorphTransformer } from './types.mjs';
 
-const TRANSFORMER_NAME = 'convert-to-readonly-type';
+const TRANSFORMER_NAME = 'convert-to-readonly';
 
-export const convertToReadonlyTypeTransformer = (
+export const convertToReadonlyTransformer = (
   options?: ReadonlyTransformerOptions,
 ): TsMorphTransformer => {
   if (
@@ -71,7 +72,7 @@ export const convertToReadonlyTypeTransformer = (
   };
 
   // eslint-disable-next-line functional/immutable-data
-  transformer.transformerName = TRANSFORMER_NAME;
+  castMutable(transformer).transformerName = TRANSFORMER_NAME;
 
   return transformer;
 };
@@ -1404,28 +1405,32 @@ const checkIfPropertyNameShouldBeIgnored = (
 
   expectType<
     tsm.PropertyName,
-    | tsm.NumericLiteral // skip
-    | tsm.BigIntLiteral // skip
-    | tsm.NoSubstitutionTemplateLiteral // invalid syntax
-    | tsm.Identifier // mut_x: number[]
-    | tsm.StringLiteral // "mut_x": number[]
-    | tsm.PrivateIdentifier // #memberName: number[] (class only)
+    | tsm.NumericLiteral
+    | tsm.BigIntLiteral
+    | tsm.NoSubstitutionTemplateLiteral
+    | tsm.Identifier
+    | tsm.StringLiteral
+    | tsm.PrivateIdentifier
     | tsm.ComputedPropertyName // [`mut_x`]: number[]
   >('=');
 
   return (
+    // mut_x: number[]
     (nameNode.isKind(tsm.SyntaxKind.Identifier) &&
       pipe(nameNode.getText()).map((nm) =>
         options.ignoredPrefixes.some((p) => nm.startsWith(p)),
       ).value) ||
+    // "mut_x": number[]
     (nameNode.isKind(tsm.SyntaxKind.StringLiteral) &&
       pipe(nameNode.getLiteralValue()).map((nm) =>
         options.ignoredPrefixes.some((p) => nm.startsWith(p)),
       ).value) ||
+    //  #memberName: number[] (class only)
     (nameNode.isKind(tsm.SyntaxKind.PrivateIdentifier) &&
       pipe(nameNode.getText()).map((nm) =>
         options.ignoredPrefixes.some((p) => nm.startsWith(`#${p}`)),
       ).value) ||
+    // [`mut_x`]: number[]
     (nameNode.isKind(tsm.SyntaxKind.ComputedPropertyName) &&
       pipe(nameNode.getExpression()).map((exp) => {
         if (exp.isKind(tsm.SyntaxKind.StringLiteral)) {

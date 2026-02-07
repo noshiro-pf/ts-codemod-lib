@@ -1,3 +1,4 @@
+/* transformer-ignore convert-to-readonly */
 /* eslint-disable @typescript-eslint/consistent-type-definitions, vitest/expect-expect */
 import { expectType } from 'ts-data-forge';
 

@@ -1,3 +1,4 @@
+import { castMutable } from 'ts-data-forge';
 import * as tsm from 'ts-morph';
 import {
   hasDisableNextLineComment,
@@ -56,7 +57,7 @@ export const replaceAnyWithUnknownTransformer = (): TsMorphTransformer => {
   };
 
   // eslint-disable-next-line functional/immutable-data
-  transformer.transformerName = TRANSFORMER_NAME;
+  castMutable(transformer).transformerName = TRANSFORMER_NAME;
 
   return transformer;
 };

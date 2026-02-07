@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/consistent-function-scoping -- helper functions are kept inside for clarity */
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types -- ts-morph uses mutable types */
-import { Arr } from 'ts-data-forge';
+import { Arr, castMutable } from 'ts-data-forge';
 import type * as tsm from 'ts-morph';
 import { type TsMorphTransformer } from './types.mjs';
 
@@ -119,7 +119,7 @@ export const convertInterfaceToTypeTransformer = (): TsMorphTransformer => {
   };
 
   // eslint-disable-next-line functional/immutable-data
-  transformer.transformerName = 'convert-interface-to-type';
+  castMutable(transformer).transformerName = 'convert-interface-to-type';
 
   return transformer;
 };

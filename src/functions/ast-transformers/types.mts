@@ -1,6 +1,7 @@
 import type * as tsm from 'ts-morph';
 
-export type TsMorphTransformer = Readonly<{
+// transformer-ignore-next-line convert-to-readonly
+export type TsMorphTransformer = {
   // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   (sourceFile: tsm.SourceFile): void;
 
@@ -9,5 +10,5 @@ export type TsMorphTransformer = Readonly<{
    * Used to enable transformer-specific ignore comments.
    * Example: 'append-as-const', 'replace-any-with-unknown'
    */
-  transformerName?: string;
-}>;
+  readonly transformerName?: string;
+};

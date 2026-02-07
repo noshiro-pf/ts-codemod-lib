@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/consistent-function-scoping -- helper functions are kept inside for clarity */
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types -- ts-morph uses mutable types */
-import { Arr } from 'ts-data-forge';
+import { Arr, castMutable } from 'ts-data-forge';
 import * as tsm from 'ts-morph';
 import { type TsMorphTransformer } from './types.mjs';
 
@@ -240,7 +240,8 @@ export const replaceRecordWithUnknownRecordTransformer =
     };
 
     // eslint-disable-next-line functional/immutable-data
-    transformer.transformerName = 'replace-record-with-unknown-record';
+    castMutable(transformer).transformerName =
+      'replace-record-with-unknown-record';
 
     return transformer;
   };

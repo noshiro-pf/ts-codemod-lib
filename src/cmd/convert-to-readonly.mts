@@ -3,7 +3,7 @@
 import * as cmd from 'cmd-ts';
 import { Result } from 'ts-data-forge';
 import 'ts-repo-utils';
-import { convertToReadonlyTypeTransformer } from '../functions/index.mjs';
+import { convertToReadonlyTransformer } from '../functions/index.mjs';
 import { runTransformerCLI } from './run-transformer-cli.mjs';
 
 const cmdDef = cmd.command({
@@ -42,7 +42,7 @@ const cmdDef = cmd.command({
           uncommitted: args.uncommitted ?? false,
           silent: args.silent ?? false,
         },
-        [convertToReadonlyTypeTransformer()],
+        [convertToReadonlyTransformer()],
       );
 
       if (Result.isErr(result)) {
