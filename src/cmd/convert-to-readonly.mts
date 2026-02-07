@@ -6,8 +6,10 @@ import 'ts-repo-utils';
 import { convertToReadonlyTransformer } from '../functions/index.mjs';
 import { runTransformerCLI } from './run-transformer-cli.mjs';
 
+const transformer = convertToReadonlyTransformer();
+
 const cmdDef = cmd.command({
-  name: 'convert-to-readonly',
+  name: transformer.name,
   version: '1.4.2',
   args: {
     baseDir: cmd.positional({
@@ -42,7 +44,7 @@ const cmdDef = cmd.command({
           uncommitted: args.uncommitted ?? false,
           silent: args.silent ?? false,
         },
-        [convertToReadonlyTransformer()],
+        [transformer],
       );
 
       if (Result.isErr(result)) {

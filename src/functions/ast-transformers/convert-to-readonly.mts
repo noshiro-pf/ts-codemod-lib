@@ -1,6 +1,5 @@
 import {
   Arr,
-  castMutable,
   expectType,
   ISet,
   isString,
@@ -65,16 +64,14 @@ export const convertToReadonlyTransformer = (
         : (node, newNodeText) => node.replaceWithText(newNodeText),
   };
 
-  const transformer: TsMorphTransformer = (sourceAst) => {
-    for (const node of sourceAst.getChildren()) {
-      transformNode(node, initialReadonlyContext, optionsInternal);
-    }
+  return {
+    name: TRANSFORMER_NAME,
+    transform: (sourceAst) => {
+      for (const node of sourceAst.getChildren()) {
+        transformNode(node, initialReadonlyContext, optionsInternal);
+      }
+    },
   };
-
-  // eslint-disable-next-line functional/immutable-data
-  castMutable(transformer).transformerName = TRANSFORMER_NAME;
-
-  return transformer;
 };
 
 export type ReadonlyTransformerOptions = DeepReadonly<{

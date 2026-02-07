@@ -1,4 +1,4 @@
-import { Arr, castMutable, expectType, ISet, pipe } from 'ts-data-forge';
+import { Arr, expectType, ISet, pipe } from 'ts-data-forge';
 import * as tsm from 'ts-morph';
 import {
   hasDisableNextLineComment,
@@ -27,26 +27,24 @@ export const appendAsConstTransformer = (
         : (node, newNodeText) => node.replaceWithText(newNodeText),
   };
 
-  const transformer: TsMorphTransformer = (sourceAst) => {
-    for (const node of sourceAst.getChildrenOfKind(
-      tsm.SyntaxKind.VariableDeclaration,
-    )) {
-      transformNode(
-        node,
-        {
-          isUnderConstContext: false,
-          isDirectUnderConstInitializer: false,
-          isUnderSpreadElement: false,
-        },
-        optionsInternal,
-      );
-    }
+  return {
+    name: TRANSFORMER_NAME,
+    transform: (sourceAst) => {
+      for (const node of sourceAst.getChildrenOfKind(
+        tsm.SyntaxKind.VariableDeclaration,
+      )) {
+        transformNode(
+          node,
+          {
+            isUnderConstContext: false,
+            isDirectUnderConstInitializer: false,
+            isUnderSpreadElement: false,
+          },
+          optionsInternal,
+        );
+      }
+    },
   };
-
-  // eslint-disable-next-line functional/immutable-data
-  castMutable(transformer).transformerName = TRANSFORMER_NAME;
-
-  return transformer;
 };
 
 export type AppendAsConstTransformerOptions = DeepReadonly<{
