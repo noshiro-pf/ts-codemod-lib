@@ -341,7 +341,7 @@ const transformNode = (
   }
 
   if (tsm.Node.isConditionalExpression(node)) {
-    // When under spread element, keep `as const` in both branches
+    // For conditional expressions, traverse both branches in a non-const context
     transformNode(
       node.getWhenTrue(),
       {
