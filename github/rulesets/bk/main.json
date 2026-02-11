@@ -100,6 +100,10 @@
           {
             "context": "test-node-versions (25.4.0)",
             "integration_id": 15368
+          },
+          {
+            "context": "style-check (codemod:full)",
+            "integration_id": 15368
           }
         ]
       }
