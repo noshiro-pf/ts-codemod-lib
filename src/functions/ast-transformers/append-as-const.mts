@@ -38,6 +38,7 @@ export const appendAsConstTransformer = (
           {
             isUnderConstContext: false,
             isDirectUnderConstInitializer: false,
+            isDirectUnderLetInitializer: false,
           },
           optionsInternal,
         );
@@ -89,6 +90,13 @@ type AsConstContext = Readonly<{
    * (e.g. `const foo = [1, 2, 3];`  --> `isDirectUnderConstInitializer` is true for `[1, 2, 3]`)
    */
   isDirectUnderConstInitializer: boolean;
+
+  /**
+   * Whether the current node is directly under a `let` variable initializer.
+   *
+   * (e.g. `let foo = [1, 2, 3];`  --> `isDirectUnderLetInitializer` is true for `[1, 2, 3]`)
+   */
+  isDirectUnderLetInitializer: boolean;
 }>;
 
 const transformNode = (
@@ -151,10 +159,21 @@ const transformNode = (
       declarationKindKeywords !== undefined &&
       Arr.isArrayOfLength(declarationKindKeywords, 1)
     ) {
+      // For let declarations, process for normalization but don't add as const
+      const isLetDeclaration = declarationKindKeywords[0] === 'let';
+
+      if (isLetDeclaration) {
+        options.debugPrint(
+          'processing let variable declaration (normalization only)',
+        );
+      }
+
       transformNode(
         initializer,
         {
-          isDirectUnderConstInitializer: declarationKindKeywords[0] === 'const',
+          isDirectUnderConstInitializer:
+            !isLetDeclaration && declarationKindKeywords[0] === 'const',
+          isDirectUnderLetInitializer: isLetDeclaration,
           isUnderConstContext: false,
         },
         options,
@@ -232,6 +251,7 @@ const transformNode = (
   ) {
     if (
       !context.isDirectUnderConstInitializer &&
+      !context.isDirectUnderLetInitializer &&
       !context.isUnderConstContext
     ) {
       options.replaceNode(node, `${node.getText()} as const`);
@@ -241,7 +261,7 @@ const transformNode = (
   }
 
   if (node.isKind(tsm.SyntaxKind.TemplateExpression)) {
-    if (!context.isUnderConstContext) {
+    if (!context.isUnderConstContext && !context.isDirectUnderLetInitializer) {
       options.replaceNode(node, `${node.getText()} as const`);
     }
 
@@ -255,12 +275,13 @@ const transformNode = (
         {
           isUnderConstContext: true, // [...] as const
           isDirectUnderConstInitializer: false,
+          isDirectUnderLetInitializer: false,
         },
         options,
       );
     }
 
-    if (!context.isUnderConstContext) {
+    if (!context.isUnderConstContext && !context.isDirectUnderLetInitializer) {
       options.replaceNode(node, `${node.getText()} as const`);
     }
 
@@ -274,12 +295,13 @@ const transformNode = (
         {
           isUnderConstContext: true, // {...} as const
           isDirectUnderConstInitializer: false,
+          isDirectUnderLetInitializer: false,
         },
         options,
       );
     }
 
-    if (!context.isUnderConstContext) {
+    if (!context.isUnderConstContext && !context.isDirectUnderLetInitializer) {
       options.replaceNode(node, `${node.getText()} as const`);
     }
 
@@ -296,6 +318,7 @@ const transformNode = (
         {
           isUnderConstContext: false,
           isDirectUnderConstInitializer: true,
+          isDirectUnderLetInitializer: false,
         },
         options,
       );
@@ -309,12 +332,30 @@ const transformNode = (
       return;
     }
 
+    if (context.isDirectUnderLetInitializer) {
+      // In let variable declarations, keep existing `as const` as is (normalization only)
+
+      transformNode(
+        node.getExpression(),
+        {
+          isUnderConstContext: true,
+          isDirectUnderConstInitializer: false,
+          isDirectUnderLetInitializer: true,
+        },
+        options,
+      );
+
+      // Keep `as const` as is
+      return;
+    }
+
     if (context.isUnderConstContext) {
       transformNode(
         node.getExpression(),
         {
           isUnderConstContext: true,
           isDirectUnderConstInitializer: false,
+          isDirectUnderLetInitializer: false,
         },
         options,
       );
@@ -333,6 +374,7 @@ const transformNode = (
       {
         isUnderConstContext: true,
         isDirectUnderConstInitializer: false,
+        isDirectUnderLetInitializer: false,
       },
       options,
     );
@@ -346,6 +388,7 @@ const transformNode = (
       node.getWhenTrue(),
       {
         isDirectUnderConstInitializer: context.isDirectUnderConstInitializer,
+        isDirectUnderLetInitializer: context.isDirectUnderLetInitializer,
         isUnderConstContext: false,
       },
       options,
@@ -355,6 +398,7 @@ const transformNode = (
       node.getWhenFalse(),
       {
         isDirectUnderConstInitializer: context.isDirectUnderConstInitializer,
+        isDirectUnderLetInitializer: context.isDirectUnderLetInitializer,
         isUnderConstContext: false,
       },
       options,
