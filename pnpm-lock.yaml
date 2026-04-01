@@ -3975,6 +3975,7 @@ packages:
   ts-fortress@6.4.2:
     resolution: {integrity: sha512-fIv5m9gZJkdCPFRvepDkp3v3+AFe19epGPqVsh1tm++6p4nC0dVU4lVim98xkKxFFKnEHFxpcKtFB4/eWoNWzw==}
     engines: {node: '>=20.11.0', pnpm: '>=8.0.0'}
+    deprecated: There is a bug in ts-data-forge that prevents mergeRecords from working correctly. Please use v7.
 
   ts-morph@27.0.2:
     resolution: {integrity: sha512-fhUhgeljcrdZ+9DZND1De1029PrE+cMkIP7ooqkLRTrRLTqcki2AstsyJm0vRNbTbVCNJ0idGlbBrfqc7/nA8w==}
